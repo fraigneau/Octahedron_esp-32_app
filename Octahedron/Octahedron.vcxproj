@@ -90,8 +90,7 @@
     <ClCompile Include="src\tft_controller.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="src\arduino folders read me.txt">
-    </None>
+    <None Include="readme.md" />
   </ItemGroup>
   <ItemGroup>
     <ProjectCapability Include="VisualMicro" />
