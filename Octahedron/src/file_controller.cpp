@@ -23,9 +23,9 @@ bool FileController::Initialize() {
 	}
 
 	Serial.println("[*] SD initialized.");
-	if (SD.exists("/imgs") == false) {
+	if(SD.exists("/imgs") == false) {
 		Serial.println("[*] /imgs folder doesn't exist, creating it...");
-		if (!SD.mkdir("/imgs")) {
+		if(!SD.mkdir("/imgs")) {
 			Serial.println("[!] FATAL [!] Failed to create /imgs folder!");
 			fatalError = true;
 			return false;
@@ -85,9 +85,33 @@ bool FileController::appendToFile(uint32_t filename, const uint8_t* data, size_t
 
 	auto size_wrote = file.write((uint8_t*)data, length);
 	file.close();
-	Serial.printf("Wrote %u/%u bytes to file %s\n", size_wrote, length, FILEHASH_TO_NAME(filename));
+	//Serial.printf("Wrote %u/%u bytes to file %s\n", size_wrote, length, FILEHASH_TO_NAME(filename));
 	return size_wrote == length;
 
+}
+
+bool FileController::overwriteToFile(uint32_t filename, const uint8_t* data, size_t length)
+{
+	this->setActive();
+	SD.remove(FILEHASH_TO_NAME(filename));
+	if (!this->createFile(filename))
+	{
+		Serial.printf("Failed to create file %s\n", FILEHASH_TO_NAME(filename));
+		return false;
+	}
+
+
+	auto file = SD.open(FILEHASH_TO_NAME(filename), FILE_WRITE);
+	if (!file)
+	{
+		Serial.printf("Failed to open file %s for appending\n", FILEHASH_TO_NAME(filename));
+		return false;
+	}
+
+	auto size_wrote = file.write((uint8_t*)data, length);
+	file.close();
+	//Serial.printf("Wrote %u/%u bytes to file %s\n", size_wrote, length, FILEHASH_TO_NAME(filename));
+	return size_wrote == length;
 }
 
 bool FileController::removeFile(uint32_t filename)

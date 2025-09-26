@@ -1,4 +1,4 @@
-ï»¿#include "bluetooth_controller.h"
+#include "bluetooth_controller.h"
 #include <Arduino.h>
 
 #define SVC_UUID "12345678-1234-1234-1234-1234567890AB"
@@ -17,20 +17,20 @@ bool BluetoothController::Initialize() {
 		Serial.printf("[!] FATAL [!] Failed to initialize BLE device\n");
 		return false;
 	}
-	NimBLEDevice::setDeviceName(DEVICE_NAME);
+	NimBLEDevice::setDeviceName(DEVICE_NAME);     
 	NimBLEDevice::setPower(ESP_PWR_LVL_P6);
-	NimBLEDevice::setMTU(512);
+	NimBLEDevice::setMTU(517);
 	packetHandler = PacketHandler();
 	server = NimBLEDevice::createServer();
-	if (!server) {
+	if(!server) {
 		Serial.printf("[!] FATAL [!] Failed to create BLE server\n");
 		return false;
 	}
 	server->setCallbacks(&serverCallbacks);
-	server->advertiseOnDisconnect(true); // relance auto l advertising apres deconnexion
+	server->advertiseOnDisconnect(true); // relance auto l’advertising après déconnexion
 
 	NimBLEService* svc = server->createService(SVC_UUID);
-	if (!svc) {
+	if(!svc) {
 		Serial.printf("[!] FATAL [!] Failed to create BLE service\n");
 		return false;
 	}
@@ -38,25 +38,25 @@ bool BluetoothController::Initialize() {
 		CHAR_UUID,
 		NIMBLE_PROPERTY::READ | NIMBLE_PROPERTY::WRITE | NIMBLE_PROPERTY::NOTIFY
 	);
-	if (!chrHello) {
+	if(!chrHello) {
 		Serial.printf("[!] FATAL [!] Failed to create BLE characteristic\n");
 		return false;
 	}
 	chrHello->setValue("HELLO");
 	chrHello->setCallbacks(&rxCallbacks);
-	if (!svc->start()) {
+	if(!svc->start()) {
 		Serial.printf("[!] FATAL [!] Failed to start BLE service\n");
 		return false;
 	}
-	NimBLEAdvertisementData advData;
-	advData.setFlags(0x06);
-	advData.setName(DEVICE_NAME);
+	NimBLEAdvertisementData advData;  
+	advData.setFlags(0x06);            
+	advData.setName(DEVICE_NAME);        
 	auto* adv = NimBLEDevice::getAdvertising();
 	adv->addServiceUUID(SVC_UUID);
 	adv->setName(DEVICE_NAME);
 	adv->setAdvertisementData(advData);
 	adv->enableScanResponse(true);
-	if (!adv->start()) {
+	if(!adv->start()) {
 		Serial.printf("[!] FATAL [!] Failed to start advertising ahah prout\n");
 		return false;
 	}
@@ -72,7 +72,7 @@ void ServerCallbacks::onConnect(NimBLEServer* s, NimBLEConnInfo& ci)
 
 void ServerCallbacks::onDisconnect(NimBLEServer* s, NimBLEConnInfo& ci, int reason)
 {
-	Serial.printf("Disconnected (%d). Advertisingï¿½\n", reason);
+	Serial.printf("Disconnected (%d). Advertising…\n", reason);
 	NimBLEDevice::startAdvertising();
 }
 
@@ -92,10 +92,10 @@ void RxCallbacks::onWrite(NimBLECharacteristic* chr, NimBLEConnInfo& conn)
 	if (response.size())
 	{
 		Serial.printf("Sending response (%d bytes): \n", response.size());
-		for (int i = 0; i < response.size(); i++)
-		{
-			Serial.printf("%02X ", response[i]);
-		}
+		//for(int i = 0; i < response.size(); i++)
+		//{
+		//	Serial.printf("%02X ", response[i]);
+		//}
 		chr->notify(response.data(), response.size(), conn.getConnHandle());
 	}
 }
